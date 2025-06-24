@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>If your MC went live today, get your CERTIFICATE TODAY </title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:wght@700&display=swap');
+
+    body {
+      font-family: 'Bodoni Moda', 'Bodoni MT', serif;
+      background: #E0B0FF;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    input[type="text"] {
+      padding: 0.5rem;
+      width: 300px;
+      font-size: 1rem;
+    }
+
+    button {
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
+      margin-top: 1rem;
+      cursor: pointer;
+    }
+
+    #status {
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Rapid MC</h1>
+  <p>Enter your MC Number to get your Authority Certificate</p>
+  <input type="text" id="mcNumber" placeholder="Enter MC Number" />
+  <br />
+  <button onclick="startCheckout()">Get My Certificate</button>
+  <p id="status"></p>
+
+  <script>
+    async function startCheckout() {
+      const mcNumber = document.getElementById('mcNumber').value.trim();
+      if (!mcNumber) {
+        document.getElementById('status').textContent = 'Please enter a valid MC Number.';
+        return;
+      }
+
+      document.getElementById('status').textContent = 'Processing...';
+
+      try {
+        const res = await fetch('http://localhost:3000/api/create-checkout-session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mcNumber })
+        });
+
+        const data = await res.json();
+        if (data.id) {
+          window.location.href = `https://checkout.stripe.com/pay/${data.id}`;
+        } else {
+          document.getElementById('status').textContent = 'Payment session failed. Please try again later.';
+        }
+      } catch (error) {
+        console.error(error);
+        document.getElementById('status').textContent = 'An error occurred. Please try again later.';
+      }
+    }
+  </script>
+</body>
+</html>
